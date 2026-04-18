@@ -1,0 +1,16 @@
+{
+  "routes": [
+    {
+      "route": "/",
+      "rewrite": "/soc_analyst_ai_simulator_v2.html"
+    }
+  ],
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/soc_analyst_ai_simulator_v2.html"
+    }
+  },
+  "globalHeaders": {
+    "Cache-Control": "no-cache"
+  }
+}
