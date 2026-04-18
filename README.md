@@ -116,8 +116,10 @@ To host your own live version:
 
 ```
 Triage-Simulation-with-AI-Augmentation/
-├── soc_analyst_ai_simulator_v2.html   # The full application (single file)
+├── soc_analyst_ai_simulator_v2.html   # App markup and logic
+├── styles.css                         # All styles (external stylesheet)
 ├── README.md                          # This file
+├── .gitignore                         # Git ignore rules
 └── LICENSE                            # MIT License
 ```
 
