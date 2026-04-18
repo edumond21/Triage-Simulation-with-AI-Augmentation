@@ -11,7 +11,7 @@ with live analysis from Google Gemini acting as your AI analyst partner.
 [![HTML5](https://img.shields.io/badge/Built%20with-HTML5-E34F26?logo=html5&logoColor=white)]()
 [![No dependencies](https://img.shields.io/badge/Dependencies-None-brightgreen)]()
 
-[**▶ Live Demo**](https://edumond21.github.io/Triage-Simulation-with-AI-Augmentation/soc_analyst_ai_simulator_v2.html)
+[**▶ Live Demo**](https://edumond21.github.io/Triage-Simulation-with-AI-Augmentation/index.html)
 
 </div>
 
@@ -89,7 +89,7 @@ The app is a single HTML file. To run your own copy:
 2. Get a **free** Gemini API key (no credit card required):  
    → [aistudio.google.com](https://aistudio.google.com) → **Get API key** → **Create API key**
 
-3. Open `soc_analyst_ai_simulator_v2.html` in a text editor and replace the key value:
+3. Open `index.html` in a text editor and replace the key value:
    ```javascript
    const GEMINI_KEY = 'YOUR_KEY_HERE';
    ```
@@ -106,7 +106,7 @@ To host your own live version:
 2. Under *Source*, select **Deploy from a branch**
 3. Choose **main** branch, **/ (root)** folder → click **Save**
 4. Your live URL will be:  
-   `https://<your-username>.github.io/<repo-name>/soc_analyst_ai_simulator_v2.html`
+   `https://<your-username>.github.io/<repo-name>/index.html`
 
 > **API key note:** For public repos, consider restricting your key to your GitHub Pages domain in [Google AI Studio](https://aistudio.google.com) to prevent unauthorised use. Go to your key → **Add restrictions** → **HTTP referrers** → add `https://yourusername.github.io/*`.
 
@@ -116,7 +116,7 @@ To host your own live version:
 
 ```
 Triage-Simulation-with-AI-Augmentation/
-├── soc_analyst_ai_simulator_v2.html   # App markup and logic
+├── index.html   # App markup and logic
 ├── styles.css                         # All styles (external stylesheet)
 ├── README.md                          # This file
 ├── .gitignore                         # Git ignore rules
