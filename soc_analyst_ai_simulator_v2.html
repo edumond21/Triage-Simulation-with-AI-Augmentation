@@ -1,0 +1,473 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;500;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  #soc-root{font-family:'Syne',var(--font-sans);background:#0a0e17;color:#c9d1e0;min-height:600px;border-radius:var(--border-radius-lg);overflow:hidden;display:flex;flex-direction:column;}
+  .soc-header{background:#0d1220;border-bottom:1px solid #1e2a3a;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;}
+  .soc-brand{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:#4fc3f7;letter-spacing:.08em;}
+  .soc-status{display:flex;gap:16px;align-items:center;}
+  .status-dot{width:7px;height:7px;border-radius:50%;background:#4caf50;animation:pulse-dot 2s infinite;}
+  @keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:.4;}}
+  .score-badge{font-family:'JetBrains Mono',monospace;font-size:12px;color:#4fc3f7;background:rgba(79,195,247,.1);border:1px solid rgba(79,195,247,.25);padding:3px 10px;border-radius:4px;}
+  .soc-body{display:grid;grid-template-columns:260px 1fr;flex:1;min-height:560px;}
+  .alert-sidebar{background:#0d1220;border-right:1px solid #1e2a3a;overflow-y:auto;padding:12px 0;}
+  .sidebar-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:#4a5568;padding:0 14px 8px;text-transform:uppercase;}
+  .alert-item{padding:10px 14px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;position:relative;}
+  .alert-item:hover{background:rgba(255,255,255,.03);}
+  .alert-item.active{background:rgba(79,195,247,.06);border-left-color:#4fc3f7;}
+  .alert-item.res-tp{border-left-color:#ef5350;opacity:.6;}
+  .alert-item.res-fp{border-left-color:#66bb6a;opacity:.6;}
+  .alert-severity{font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.06em;margin-bottom:3px;}
+  .sev-critical{color:#ef5350;}.sev-high{color:#ffa726;}.sev-medium{color:#ffee58;}.sev-low{color:#66bb6a;}
+  .alert-title-short{font-size:12px;color:#c9d1e0;line-height:1.4;font-weight:500;}
+  .alert-type-tag{font-size:10px;color:#4a5568;margin-top:3px;font-family:'JetBrains Mono',monospace;}
+  .res-mark{font-size:10px;font-family:'JetBrains Mono',monospace;position:absolute;right:10px;top:10px;}
+  .main-panel{display:flex;flex-direction:column;overflow:hidden;}
+  .alert-detail{padding:20px;flex:1;overflow-y:auto;}
+  .detail-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#e8edf5;margin-bottom:4px;}
+  .detail-meta{font-size:12px;color:#4a5568;font-family:'JetBrains Mono',monospace;margin-bottom:16px;}
+  .data-table{background:#0d1220;border:1px solid #1e2a3a;border-radius:8px;overflow:hidden;margin-bottom:14px;}
+  .data-table-header{background:#111827;padding:8px 14px;font-size:11px;font-family:'JetBrains Mono',monospace;color:#4a5568;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid #1e2a3a;}
+  .data-row{display:flex;padding:7px 14px;border-bottom:1px solid rgba(30,42,58,.5);font-size:12px;font-family:'JetBrains Mono',monospace;gap:12px;}
+  .data-row:last-child{border-bottom:none;}
+  .data-key{color:#4a8aba;min-width:120px;flex-shrink:0;}
+  .data-val{color:#c9d1e0;word-break:break-all;}
+  .data-val.suspicious{color:#ef5350;font-weight:600;}
+  .ai-panel{background:#080c14;border:1px solid rgba(79,195,247,.2);border-radius:8px;margin-bottom:14px;overflow:hidden;}
+  .ai-panel-header{background:rgba(79,195,247,.07);padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(79,195,247,.15);}
+  .ai-icon{width:18px;height:18px;background:rgba(79,195,247,.2);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+  .ai-label{font-size:11px;font-family:'JetBrains Mono',monospace;color:#4fc3f7;font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
+  .ai-mode-badge{margin-left:auto;font-size:10px;font-family:'JetBrains Mono',monospace;color:#4a5568;background:rgba(255,255,255,.04);padding:2px 8px;border-radius:4px;border:1px solid #1e2a3a;}
+  .ai-body{padding:14px;}
+  .ai-loading{display:flex;align-items:center;gap:8px;font-size:12px;font-family:'JetBrains Mono',monospace;color:#4a5568;}
+  .ai-spinner{width:14px;height:14px;border:2px solid #1e2a3a;border-top-color:#4fc3f7;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .ai-verdict-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .verdict-chip{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;padding:4px 12px;border-radius:4px;letter-spacing:.06em;}
+  .verdict-tp{background:rgba(239,83,80,.15);color:#ef5350;border:1px solid rgba(239,83,80,.3);}
+  .verdict-fp{background:rgba(102,187,106,.12);color:#66bb6a;border:1px solid rgba(102,187,106,.3);}
+  .verdict-uncertain{background:rgba(255,167,38,.12);color:#ffa726;border:1px solid rgba(255,167,38,.3);}
+  .confidence-bar-wrap{flex:1;background:#1e2a3a;border-radius:3px;height:6px;overflow:hidden;}
+  .confidence-bar{height:100%;border-radius:3px;transition:width .8s ease;}
+  .conf-high{background:#ef5350;}.conf-med{background:#ffa726;}.conf-low{background:#66bb6a;}
+  .confidence-label{font-size:11px;font-family:'JetBrains Mono',monospace;color:#4a5568;min-width:40px;text-align:right;}
+  .ai-reasoning{font-size:13px;color:#8892a4;line-height:1.6;margin-bottom:12px;}
+  .ai-indicators{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+  .indicator-tag{font-size:11px;font-family:'JetBrains Mono',monospace;padding:3px 9px;border-radius:4px;border:1px solid;}
+  .ind-suspicious{color:#ef5350;border-color:rgba(239,83,80,.3);background:rgba(239,83,80,.07);}
+  .ind-neutral{color:#ffa726;border-color:rgba(255,167,38,.3);background:rgba(255,167,38,.07);}
+  .ind-ok{color:#66bb6a;border-color:rgba(102,187,106,.3);background:rgba(102,187,106,.07);}
+  .ai-question{background:rgba(79,195,247,.05);border:1px solid rgba(79,195,247,.15);border-radius:6px;padding:10px 12px;margin-bottom:10px;}
+  .ai-question p{font-size:13px;color:#a8c7e0;margin-bottom:8px;line-height:1.5;}
+  .ai-q-buttons{display:flex;flex-wrap:wrap;gap:6px;}
+  .ai-q-btn{font-size:11px;font-family:'JetBrains Mono',monospace;color:#4fc3f7;background:rgba(79,195,247,.08);border:1px solid rgba(79,195,247,.2);border-radius:4px;padding:5px 10px;cursor:pointer;transition:all .15s;}
+  .ai-q-btn:hover{background:rgba(79,195,247,.15);}
+  .verdict-section{border-top:1px solid #1e2a3a;padding:16px 20px;display:flex;gap:10px;align-items:center;background:#0a0e17;}
+  .verdict-label{font-size:12px;font-family:'JetBrains Mono',monospace;color:#4a5568;margin-right:4px;}
+  .verdict-btn{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;padding:8px 18px;border-radius:5px;cursor:pointer;transition:all .15s;letter-spacing:.04em;}
+  .btn-tp{background:rgba(239,83,80,.15);color:#ef5350;border:1px solid rgba(239,83,80,.35);}
+  .btn-tp:hover{background:rgba(239,83,80,.25);}
+  .btn-fp{background:rgba(102,187,106,.12);color:#66bb6a;border:1px solid rgba(102,187,106,.3);}
+  .btn-fp:hover{background:rgba(102,187,106,.2);}
+  .btn-escalate{background:rgba(255,167,38,.1);color:#ffa726;border:1px solid rgba(255,167,38,.25);}
+  .btn-escalate:hover{background:rgba(255,167,38,.18);}
+  .result-overlay{position:absolute;inset:0;background:rgba(10,14,23,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;border-radius:8px;gap:10px;}
+  .result-title{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;}
+  .result-sub{font-size:13px;color:#8892a4;font-family:'JetBrains Mono',monospace;text-align:center;max-width:300px;line-height:1.5;}
+  .explain-block{background:rgba(79,195,247,.04);border:1px solid rgba(79,195,247,.12);border-radius:6px;padding:10px 14px;font-size:12px;color:#7a8fa8;line-height:1.6;font-family:'JetBrains Mono',monospace;max-width:340px;text-align:center;}
+  .result-next{font-family:'JetBrains Mono',monospace;font-size:12px;color:#4fc3f7;background:rgba(79,195,247,.1);border:1px solid rgba(79,195,247,.25);padding:8px 18px;border-radius:5px;cursor:pointer;margin-top:6px;transition:all .15s;}
+  .result-next:hover{background:rgba(79,195,247,.18);}
+  .no-alert{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:#2a3548;}
+  .no-alert-text{font-family:'JetBrains Mono',monospace;font-size:13px;}
+  .progress-row{display:flex;gap:8px;padding:8px 20px;background:#0d1220;border-top:1px solid #1e2a3a;align-items:center;}
+  .prog-item{font-size:11px;font-family:'JetBrains Mono',monospace;color:#4a5568;}
+  .prog-item span{font-weight:600;color:#c9d1e0;}
+
+  /* Finish screen */
+  #finish-screen{display:none;position:fixed;inset:0;background:rgba(10,14,23,.97);align-items:center;justify-content:center;z-index:200;font-family:'Syne',sans-serif;}
+  #finish-screen.visible{display:flex;}
+  .finish-card{background:#0d1220;border:1px solid #1e2a3a;border-radius:16px;padding:48px 40px;width:480px;max-width:92vw;text-align:center;}
+  .finish-logo{font-family:'JetBrains Mono',monospace;font-size:11px;color:#4a5568;letter-spacing:.12em;text-transform:uppercase;margin-bottom:20px;}
+  .finish-grade{font-size:28px;font-weight:700;letter-spacing:.04em;margin-bottom:6px;}
+  .finish-score-big{font-family:'JetBrains Mono',monospace;font-size:52px;font-weight:600;line-height:1;margin-bottom:4px;}
+  .finish-score-label{font-family:'JetBrains Mono',monospace;font-size:12px;color:#4a5568;margin-bottom:28px;}
+  .finish-stats{display:flex;justify-content:center;gap:24px;margin-bottom:32px;}
+  .finish-stat{background:#080c14;border:1px solid #1e2a3a;border-radius:8px;padding:14px 20px;min-width:80px;}
+  .finish-stat-val{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;color:#c9d1e0;}
+  .finish-stat-key{font-family:'JetBrains Mono',monospace;font-size:10px;color:#4a5568;text-transform:uppercase;letter-spacing:.1em;margin-top:4px;}
+  .finish-btn{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;padding:12px 32px;border-radius:6px;cursor:pointer;transition:all .15s;letter-spacing:.06em;background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.3);color:#4fc3f7;}
+  .finish-btn:hover{background:rgba(79,195,247,.22);}
+  .finish-btn:disabled{opacity:.45;cursor:not-allowed;}
+  .finish-regen{font-family:'JetBrains Mono',monospace;font-size:12px;color:#4a5568;margin-top:12px;min-height:20px;display:flex;align-items:center;justify-content:center;gap:8px;}
+</style>
+
+<div id="finish-screen">
+  <div class="finish-card">
+    <div class="finish-logo">SOC//AI — Session Complete</div>
+    <div class="finish-grade" id="finish-grade"></div>
+    <div class="finish-score-big" id="finish-score-big"></div>
+    <div class="finish-score-label" id="finish-score-label"></div>
+    <div class="finish-stats">
+      <div class="finish-stat">
+        <div class="finish-stat-val" id="fin-tp">—</div>
+        <div class="finish-stat-key">True Pos</div>
+      </div>
+      <div class="finish-stat">
+        <div class="finish-stat-val" id="fin-fp">—</div>
+        <div class="finish-stat-key">False Pos</div>
+      </div>
+      <div class="finish-stat">
+        <div class="finish-stat-val" id="fin-wrong">—</div>
+        <div class="finish-stat-key">Missed</div>
+      </div>
+    </div>
+    <button class="finish-btn" id="finish-restart-btn" onclick="restartSimulator()">New Alert Queue →</button>
+    <div class="finish-regen" id="finish-regen"></div>
+  </div>
+</div>
+
+<h2 class="sr-only">SOC Analyst AI Training Simulator — triage security alerts as true positive or false positive with live Gemini AI augmentation</h2>
+<div id="soc-root">
+  <div class="soc-header">
+    <div class="soc-brand">SOC//AI — Alert Triage Simulator</div>
+    <div class="soc-status">
+      <div class="status-dot"></div>
+      <div class="score-badge" id="score-display">Score: 0 / 0</div>
+    </div>
+  </div>
+  <div class="soc-body">
+    <div class="alert-sidebar" id="alert-sidebar"></div>
+    <div class="main-panel">
+      <div class="alert-detail" id="alert-detail">
+        <div class="no-alert"><div class="no-alert-text">Select an alert to begin</div></div>
+      </div>
+      <div class="verdict-section" id="verdict-section" style="display:none;">
+        <span class="verdict-label">Your verdict:</span>
+        <button class="verdict-btn btn-tp" onclick="submitVerdict('TP')">TRUE POSITIVE</button>
+        <button class="verdict-btn btn-fp" onclick="submitVerdict('FP')">FALSE POSITIVE</button>
+        <button class="verdict-btn btn-escalate" onclick="submitVerdict('ESCALATE')">ESCALATE</button>
+      </div>
+      <div class="progress-row" id="progress-row" style="display:none;">
+        <div class="prog-item">Resolved: <span id="prog-resolved">0</span></div>
+        <div class="prog-item" style="margin-left:auto;">TP: <span id="prog-tp">0</span></div>
+        <div class="prog-item">FP: <span id="prog-fp">0</span></div>
+        <div class="prog-item">Correct: <span id="prog-correct">0</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// IMPORTANT: Replace the value below with your free Google Gemini API key.
+// Get one free (no credit card) at: aistudio.google.com → Get API key
+// This key is embedded here so visitors can use the app without signing in.
+// ─────────────────────────────────────────────────────────────────────────────
+const GEMINI_KEY = 'AIzaSyA4fUEDUylWhT6Ud7fszzGYQFutPmTqvbw';
+
+let ALERTS = [];
+let state = {selected:null, resolved:{}, score:0, total:0, aiData:{}, aiLoading:{}};
+
+// ── Gemini API helper ─────────────────────────────────────────────────────────
+
+async function callGemini(systemText, userText) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      system_instruction: {parts:[{text: systemText}]},
+      contents: [{parts:[{text: userText}]}],
+      generationConfig: {maxOutputTokens:4096, responseMimeType:'application/json'}
+    })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Empty response from Gemini');
+  return text;
+}
+
+// ── Alert generation ──────────────────────────────────────────────────────────
+
+async function generateAlertsWithGemini() {
+  const raw = await callGemini(
+    `You are a cybersecurity training content generator. You create realistic SOC alert scenarios for analyst training. Always respond with valid JSON only.`,
+    `Generate exactly 8 diverse SOC triage training alerts as a JSON array. Each alert must be a realistic scenario a tier-1 analyst would encounter.
+
+Requirements:
+- Exactly 5 TRUE POSITIVES (answer:"TP") and 3 FALSE POSITIVES (answer:"FP")
+- Cover all four types across the 8: "Phishing Email", "Malware / Endpoint", "Network Anomaly", "Suspicious Login / IAM"
+- Mix severities: at least one CRITICAL, two HIGH, two MEDIUM, one LOW
+- aiMode distribution: "verdict" for 4 alerts, "indicators" for 2, "question" for 2
+- FPs should be believable: authorized scanner, known CI/CD transfer, legitimate reset, exec travel, etc.
+- TPs should have realistic IOCs
+
+Return a JSON array of 8 objects, each with EXACTLY these fields:
+{
+  "id": <integer 1-8>,
+  "type": <"Phishing Email"|"Malware / Endpoint"|"Network Anomaly"|"Suspicious Login / IAM">,
+  "severity": <"LOW"|"MEDIUM"|"HIGH"|"CRITICAL">,
+  "answer": <"TP"|"FP">,
+  "title": <short title max 60 chars>,
+  "ts": <timestamp like "2025-06-10 14:22:31 UTC">,
+  "src": <source system name>,
+  "fields": <array of 5-7 objects: {"k":"field name","v":"value","s":boolean}>,
+  "aiMode": <"verdict"|"indicators"|"question">,
+  "explanation": <1-2 sentence educational note shown after the answer is revealed>
+}
+
+For fields: "s":true marks suspicious/anomalous fields. TP alerts should have 2-4 suspicious fields; clean FP alerts may have 0-1. Use creative, varied, realistic details — no repeated attack patterns.`
+  );
+  const parsed = JSON.parse(raw);
+  if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('Invalid alert data received');
+  return parsed;
+}
+
+// ── Initialise / restart ──────────────────────────────────────────────────────
+
+function renderLoadingState() {
+  document.getElementById('alert-sidebar').innerHTML = `
+    <div style="padding:24px 14px;display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <div class="ai-spinner" style="width:20px;height:20px;border-width:3px;"></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#4a5568;text-align:center;line-height:1.6;">
+        Generating alert queue<br>with Gemini…
+      </div>
+    </div>`;
+  document.getElementById('alert-detail').innerHTML = `
+    <div class="no-alert" style="flex-direction:column;gap:14px;">
+      <div class="ai-spinner" style="width:22px;height:22px;border-width:3px;"></div>
+      <div class="no-alert-text" style="color:#4a5568;">Generating randomised alert queue…</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#2a3548;">Takes about 5–10 seconds</div>
+    </div>`;
+  document.getElementById('verdict-section').style.display = 'none';
+  document.getElementById('progress-row').style.display = 'none';
+}
+
+async function initSimulator() {
+  renderLoadingState();
+  try {
+    ALERTS = await generateAlertsWithGemini();
+    renderSidebar();
+    document.getElementById('alert-detail').innerHTML =
+      '<div class="no-alert"><div class="no-alert-text">Select an alert to begin</div></div>';
+  } catch(e) {
+    document.getElementById('alert-detail').innerHTML = `
+      <div class="no-alert" style="flex-direction:column;gap:10px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#ef5350;">Failed to generate alerts</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#4a5568;max-width:280px;text-align:center;line-height:1.6;">${e.message}</div>
+        <button class="result-next" onclick="initSimulator()" style="margin-top:4px;">Retry →</button>
+      </div>`;
+    document.getElementById('alert-sidebar').innerHTML = '';
+  }
+}
+
+async function restartSimulator() {
+  document.getElementById('finish-screen').classList.remove('visible');
+  state = {selected:null, resolved:{}, score:0, total:0, aiData:{}, aiLoading:{}};
+  document.getElementById('score-display').textContent = 'Score: 0 / 0';
+  await initSimulator();
+}
+
+// ── Per-alert AI analysis ─────────────────────────────────────────────────────
+
+function callGeminiAPI(alertId) {
+  const a = ALERTS.find(x => x.id === alertId);
+  if (!a) return;
+  state.aiLoading[alertId] = true;
+  renderDetail();
+
+  const fieldText = a.fields.map(f => `  ${f.k}: ${f.v}${f.s?' [FLAGGED]':''}`).join('\n');
+
+  const modeInstructions = {
+    verdict: `Give a definitive verdict. Return JSON: {"verdict":"TP" or "FP","confidence":<0-100>,"reasoning":"<2-3 sentences>","indicators":[{"text":"<label>","type":"suspicious|neutral|ok"}]} — 3-6 indicators.`,
+    indicators: `Highlight suspicious indicators without a final verdict. Return JSON: {"verdict":"REVIEW","confidence":<0-100>,"reasoning":"<2-3 sentences>","indicators":[{"text":"<label>","type":"suspicious|neutral|ok"}]} — 4-7 indicators.`,
+    question: `Express uncertainty and ask for context. Return JSON: {"verdict":"UNCERTAIN","confidence":<0-100>,"reasoning":"<2-3 sentences>","indicators":[{"text":"<label>","type":"suspicious|neutral|ok"}],"question":"<one specific question>","options":["<opt1>","<opt2>","<opt3>"]} — 2-4 indicators, exactly 3 options.`
+  };
+
+  callGemini(
+    `You are an AI-powered SOC analyst assistant in a training simulator. Analyze security alerts and provide structured analysis. Respond with valid JSON only — no preamble, no markdown.`,
+    `Alert Type: ${a.type}\nSeverity: ${a.severity}\nTitle: ${a.title}\nTimestamp: ${a.ts}\nSource: ${a.src}\n\nAlert Fields:\n${fieldText}\n\nMode: ${a.aiMode.toUpperCase()}\n${modeInstructions[a.aiMode]}`
+  ).then(raw => {
+    state.aiLoading[alertId] = false;
+    try { state.aiData[alertId] = JSON.parse(raw); }
+    catch(e) { state.aiData[alertId] = {error:true}; }
+    if (state.selected === alertId) renderDetail();
+  }).catch(() => {
+    state.aiLoading[alertId] = false;
+    state.aiData[alertId] = {error:true};
+    if (state.selected === alertId) renderDetail();
+  });
+}
+
+// ── Finish screen ─────────────────────────────────────────────────────────────
+
+function showFinishScreen() {
+  const total = ALERTS.length;
+  const pct = Math.round((state.score / total) * 100);
+  const grade = pct >= 90 ? 'ELITE ANALYST' : pct >= 75 ? 'SOLID ANALYST' : pct >= 50 ? 'DEVELOPING SKILLS' : 'NEEDS TRAINING';
+  const gradeColor = pct >= 90 ? '#66bb6a' : pct >= 75 ? '#4fc3f7' : pct >= 50 ? '#ffa726' : '#ef5350';
+  const vals = Object.values(state.resolved);
+  const tpMarked = vals.filter(r => r.verdict === 'TP' || r.verdict === 'ESCALATE').length;
+  const fpMarked = vals.filter(r => r.verdict === 'FP').length;
+  const wrong = total - state.score;
+
+  document.getElementById('finish-grade').textContent = grade;
+  document.getElementById('finish-grade').style.color = gradeColor;
+  document.getElementById('finish-score-big').textContent = `${state.score}/${total}`;
+  document.getElementById('finish-score-big').style.color = gradeColor;
+  document.getElementById('finish-score-label').textContent = `${pct}% accuracy`;
+  document.getElementById('fin-tp').textContent = tpMarked;
+  document.getElementById('fin-fp').textContent = fpMarked;
+  document.getElementById('fin-wrong').textContent = wrong;
+  document.getElementById('finish-regen').textContent = '';
+  document.getElementById('finish-restart-btn').disabled = false;
+  document.getElementById('finish-screen').classList.add('visible');
+}
+
+// ── Rendering ─────────────────────────────────────────────────────────────────
+
+function renderSidebar() {
+  const el = document.getElementById('alert-sidebar');
+  el.innerHTML = '<div class="sidebar-label">Alert Queue (' + ALERTS.length + ')</div>';
+  ALERTS.forEach(a => {
+    const r = state.resolved[a.id];
+    let cls = 'alert-item';
+    if (state.selected === a.id) cls += ' active';
+    if (r) cls += a.answer === 'FP' ? ' res-fp' : ' res-tp';
+    const mark = r ? `<span class="res-mark" style="color:${r.correct?'#66bb6a':'#ef5350'}">${r.correct?'✓':'✗'}</span>` : '';
+    el.innerHTML += `<div class="${cls}" onclick="selectAlert(${a.id})">
+      <div class="alert-severity sev-${a.severity.toLowerCase()}">${a.severity}</div>
+      <div class="alert-title-short">${a.title}</div>
+      <div class="alert-type-tag">${a.type}</div>${mark}
+    </div>`;
+  });
+}
+
+function selectAlert(id) {
+  state.selected = id;
+  renderSidebar();
+  renderDetail();
+  if (!state.aiData[id] && !state.aiLoading[id]) callGeminiAPI(id);
+}
+
+function renderDetail() {
+  const a = ALERTS.find(x => x.id === state.selected);
+  if (!a) {
+    document.getElementById('alert-detail').innerHTML = '<div class="no-alert"><div class="no-alert-text">Select an alert to begin</div></div>';
+    return;
+  }
+  const resolved = state.resolved[a.id];
+  document.getElementById('verdict-section').style.display = resolved ? 'none' : 'flex';
+  document.getElementById('progress-row').style.display = 'flex';
+
+  const fieldsHtml = a.fields.map(f =>
+    `<div class="data-row"><span class="data-key">${f.k}</span><span class="data-val ${f.s?'suspicious':''}">${f.v}</span></div>`
+  ).join('');
+
+  document.getElementById('alert-detail').innerHTML = `
+    <div style="position:relative;">
+      <div class="detail-title">${a.title}</div>
+      <div class="detail-meta">${a.ts} &nbsp;·&nbsp; ${a.src} &nbsp;·&nbsp; ${a.type}</div>
+      <div class="data-table">
+        <div class="data-table-header">Alert Fields</div>
+        ${fieldsHtml}
+      </div>
+      ${renderAIPanel(a)}
+      ${resolved ? renderResultOverlay(a, resolved) : ''}
+    </div>`;
+
+  updateProgress();
+}
+
+function renderAIPanel(a) {
+  const loading = state.aiLoading[a.id];
+  const ai = state.aiData[a.id];
+  const modeLabel = {verdict:'MODE: VERDICT + REASON', indicators:'MODE: INDICATOR HIGHLIGHT', question:'MODE: GUIDED INQUIRY'}[a.aiMode];
+
+  let inner = '';
+  if (loading || (!ai && state.aiLoading[a.id] !== false)) {
+    inner = `<div class="ai-loading"><div class="ai-spinner"></div><span>Gemini is analyzing this alert…</span></div>`;
+  } else if (!ai) {
+    inner = `<div class="ai-loading"><div class="ai-spinner"></div><span>Connecting to Gemini API…</span></div>`;
+  } else if (ai.error) {
+    inner = `<div class="ai-loading" style="color:#ef5350;">AI analysis unavailable for this alert.</div>`;
+  } else {
+    const conf = ai.confidence || 50;
+    const confClass = conf >= 85 ? 'conf-high' : conf >= 60 ? 'conf-med' : 'conf-low';
+    const vcls = ai.verdict === 'TP' ? 'verdict-tp' : ai.verdict === 'FP' ? 'verdict-fp' : 'verdict-uncertain';
+    const vLabel = ai.verdict === 'REVIEW' ? 'REVIEW' : ai.verdict === 'UNCERTAIN' ? 'UNCERTAIN' : ai.verdict || 'UNCERTAIN';
+
+    const verdictRow = `<div class="ai-verdict-row">
+      <div class="verdict-chip ${vcls}">${vLabel}</div>
+      <div class="confidence-bar-wrap"><div class="confidence-bar ${confClass}" style="width:${conf}%"></div></div>
+      <div class="confidence-label">${conf}%</div>
+    </div>`;
+
+    const indicators = (ai.indicators || []).map(i =>
+      `<span class="indicator-tag ind-${i.type||'neutral'}">${i.text}</span>`
+    ).join('');
+
+    const questionBlock = a.aiMode === 'question' && ai.question ? `<div class="ai-question">
+      <p>${ai.question}</p>
+      <div class="ai-q-buttons">${(ai.options||[]).map(o =>
+        `<button class="ai-q-btn" onclick="this.parentElement.parentElement.innerHTML='<p style=color:#66bb6a;font-family:JetBrains Mono,monospace;font-size:12px>Context noted: \\'${o.replace(/'/g,"\\'")}\\' — proceed with your verdict.</p>'">${o}</button>`
+      ).join('')}</div>
+    </div>` : '';
+
+    inner = `${verdictRow}
+      <div class="ai-reasoning">${ai.reasoning||''}</div>
+      ${indicators ? `<div class="ai-indicators">${indicators}</div>` : ''}
+      ${questionBlock}`;
+  }
+
+  return `<div class="ai-panel">
+    <div class="ai-panel-header">
+      <div class="ai-icon">◈</div>
+      <div class="ai-label">AI Analyst — Live</div>
+      <div class="ai-mode-badge">${modeLabel}</div>
+    </div>
+    <div class="ai-body">${inner}</div>
+  </div>`;
+}
+
+function renderResultOverlay(a, resolved) {
+  return `<div class="result-overlay">
+    <div class="result-title" style="color:${resolved.correct?'#66bb6a':'#ef5350'}">${resolved.correct?'Correct':'Incorrect'}</div>
+    <div class="result-sub">This was a <strong>${a.answer}</strong>. You marked ${resolved.verdict}.</div>
+    <div class="explain-block">${a.explanation}</div>
+    <button class="result-next" onclick="nextAlert()">Next alert →</button>
+  </div>`;
+}
+
+function submitVerdict(verdict) {
+  const a = ALERTS.find(x => x.id === state.selected);
+  if (!a || state.resolved[a.id]) return;
+  const correct = verdict === a.answer || (verdict === 'ESCALATE' && a.answer === 'TP');
+  state.resolved[a.id] = {verdict, correct};
+  state.total++;
+  if (correct) state.score++;
+  document.getElementById('score-display').textContent = `Score: ${state.score} / ${state.total}`;
+  renderSidebar();
+  renderDetail();
+  if (Object.keys(state.resolved).length === ALERTS.length) {
+    setTimeout(showFinishScreen, 1400);
+  }
+}
+
+function nextAlert() {
+  const next = ALERTS.find(a => !state.resolved[a.id]);
+  if (next) selectAlert(next.id);
+}
+
+function updateProgress() {
+  const vals = Object.values(state.resolved);
+  document.getElementById('prog-resolved').textContent = vals.length;
+  document.getElementById('prog-tp').textContent = vals.filter(r => r.verdict === 'TP' || r.verdict === 'ESCALATE').length;
+  document.getElementById('prog-fp').textContent = vals.filter(r => r.verdict === 'FP').length;
+  document.getElementById('prog-correct').textContent = state.score;
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+initSimulator();
+</script>
