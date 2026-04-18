@@ -64,21 +64,14 @@
 </div>
 
 <script>
-const GEMINI_KEY = 'AIzaSyA4fUEDUylWhT6Ud7fszzGYQFutPmTqvbw';
-
 let ALERTS = [];
 let state = {selected:null, resolved:{}, score:0, total:0, aiData:{}, aiLoading:{}};
 
 async function callGemini(systemText, userText) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
-  const res = await fetch(url, {
+  const res = await fetch('/api/gemini', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-      system_instruction: {parts:[{text: systemText}]},
-      contents: [{parts:[{text: userText}]}],
-      generationConfig: {maxOutputTokens:4096, responseMimeType:'application/json'}
-    })
+    body: JSON.stringify({systemText, userText})
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);

@@ -15,3 +15,6 @@ desktop.ini
 # Local config (if you ever split the API key out)
 config.js
 .env
+
+# API dependencies
+api/node_modules
