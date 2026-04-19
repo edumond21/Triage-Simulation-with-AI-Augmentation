@@ -65,6 +65,8 @@
 
 <script>
 let ALERTS = [];
+let ALERT_POOL = [];
+let trickleTimer = null;
 let state = {selected:null, resolved:{}, score:0, total:0, aiData:{}, aiLoading:{}};
 
 async function callGemini(systemText, userText) {
@@ -83,19 +85,19 @@ async function callGemini(systemText, userText) {
 async function generateAlertsWithGemini() {
   const raw = await callGemini(
     `You are a cybersecurity training content generator. You create realistic SOC alert scenarios for analyst training. Always respond with valid JSON only.`,
-    `Generate exactly 8 diverse SOC triage training alerts as a JSON array. Each alert must be a realistic scenario a tier-1 analyst would encounter.
+    `Generate exactly 15 diverse SOC triage training alerts as a JSON array. Each alert must be a realistic scenario a tier-1 analyst would encounter.
 
 Requirements:
-- Exactly 5 TRUE POSITIVES (answer:"TP") and 3 FALSE POSITIVES (answer:"FP")
-- Cover all four types across the 8: "Phishing Email", "Malware / Endpoint", "Network Anomaly", "Suspicious Login / IAM"
-- Mix severities: at least one CRITICAL, two HIGH, two MEDIUM, one LOW
-- aiMode distribution: "verdict" for 4 alerts, "indicators" for 2, "question" for 2
+- Exactly 9 TRUE POSITIVES (answer:"TP") and 6 FALSE POSITIVES (answer:"FP")
+- Cover all four types across the 15: "Phishing Email", "Malware / Endpoint", "Network Anomaly", "Suspicious Login / IAM"
+- Mix severities: at least 2 CRITICAL, 4 HIGH, 4 MEDIUM, 2 LOW
+- aiMode distribution: "verdict" for 7 alerts, "indicators" for 4, "question" for 4
 - FPs should be believable: authorized scanner, known CI/CD transfer, legitimate reset, exec travel, etc.
 - TPs should have realistic IOCs
 
-Return a JSON array of 8 objects, each with EXACTLY these fields:
+Return a JSON array of 15 objects, each with EXACTLY these fields:
 {
-  "id": <integer 1-8>,
+  "id": <integer 1-15>,
   "type": <"Phishing Email"|"Malware / Endpoint"|"Network Anomaly"|"Suspicious Login / IAM">,
   "severity": <"LOW"|"MEDIUM"|"HIGH"|"CRITICAL">,
   "answer": <"TP"|"FP">,
@@ -112,6 +114,16 @@ For fields: "s":true marks suspicious/anomalous fields. TP alerts should have 2-
   const parsed = JSON.parse(raw);
   if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('Invalid alert data received');
   return parsed;
+}
+
+function trickleNextAlert() {
+  if (ALERT_POOL.length === 0) return;
+  ALERTS.push(ALERT_POOL.shift());
+  renderSidebar();
+  const sidebar = document.getElementById('alert-sidebar');
+  const items = sidebar.querySelectorAll('.alert-item');
+  if (items.length > 0) items[items.length - 1].classList.add('alert-item-new');
+  if (ALERT_POOL.length > 0) trickleTimer = setTimeout(trickleNextAlert, 12000);
 }
 
 function renderLoadingState() {
@@ -133,12 +145,20 @@ function renderLoadingState() {
 }
 
 async function initSimulator() {
+  clearTimeout(trickleTimer);
+  trickleTimer = null;
+  ALERTS = [];
+  ALERT_POOL = [];
   renderLoadingState();
   try {
-    ALERTS = await generateAlertsWithGemini();
+    const all = await generateAlertsWithGemini();
+    ALERT_POOL = all;
+    for (let i = 0; i < 3 && ALERT_POOL.length > 0; i++) ALERTS.push(ALERT_POOL.shift());
     renderSidebar();
     document.getElementById('alert-detail').innerHTML =
       '<div class="no-alert"><div class="no-alert-text">Select an alert to begin</div></div>';
+    document.getElementById('progress-row').style.display = 'none';
+    if (ALERT_POOL.length > 0) trickleTimer = setTimeout(trickleNextAlert, 12000);
   } catch(e) {
     document.getElementById('alert-detail').innerHTML = `
       <div class="no-alert" style="flex-direction:column;gap:10px;">
@@ -151,6 +171,10 @@ async function initSimulator() {
 }
 
 async function restartSimulator() {
+  clearTimeout(trickleTimer);
+  trickleTimer = null;
+  ALERTS = [];
+  ALERT_POOL = [];
   document.getElementById('finish-screen').classList.remove('visible');
   state = {selected:null, resolved:{}, score:0, total:0, aiData:{}, aiLoading:{}};
   document.getElementById('score-display').textContent = 'Score: 0 / 0';
@@ -209,7 +233,10 @@ function showFinishScreen() {
 
 function renderSidebar() {
   const el = document.getElementById('alert-sidebar');
-  el.innerHTML = '<div class="sidebar-label">Alert Queue (' + ALERTS.length + ')</div>';
+  const total = ALERTS.length + ALERT_POOL.length;
+  const incomingTag = ALERT_POOL.length > 0
+    ? ` <span style="color:#4a5568;font-size:10px;font-weight:400;">${ALERT_POOL.length} incoming…</span>` : '';
+  el.innerHTML = `<div class="sidebar-label">Alert Queue (${ALERTS.length}/${total})${incomingTag}</div>`;
   ALERTS.forEach(a => {
     const r = state.resolved[a.id];
     let cls = 'alert-item';
@@ -330,7 +357,7 @@ function submitVerdict(verdict) {
   document.getElementById('score-display').textContent = `Score: ${state.score} / ${state.total}`;
   renderSidebar();
   renderDetail();
-  if (Object.keys(state.resolved).length === ALERTS.length) {
+  if (ALERT_POOL.length === 0 && Object.keys(state.resolved).length === ALERTS.length) {
     setTimeout(showFinishScreen, 1400);
   }
 }

@@ -39,6 +39,8 @@ body { background: #0a0e17; min-height: 100vh; display: flex; align-items: stret
   animation: pulse-dot 2s infinite;
 }
 @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:.4;} }
+@keyframes alert-slide-in { from{opacity:0;transform:translateX(-12px);} to{opacity:1;transform:translateX(0);} }
+.alert-item-new { animation: alert-slide-in 0.5s ease; }
 .score-badge {
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
