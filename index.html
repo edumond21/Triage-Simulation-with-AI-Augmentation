@@ -68,7 +68,7 @@ let ALERTS = [];
 let state = {selected:null, resolved:{}, score:0, total:0, aiData:{}, aiLoading:{}};
 
 async function callGemini(systemText, userText) {
-  const res = await fetch('/api/gemini', {
+  const res = await fetch('https://gemini-proxy.elijahdumond.workers.dev', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({systemText, userText})
