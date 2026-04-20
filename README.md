@@ -57,8 +57,8 @@ When you're done, a results screen grades your performance from *Needs Training*
 
 ```
 Page load
-  └─▶ Gemini generates 8 randomised alerts (JSON array)
-        └─▶ Each alert has: type, severity, fields, correct answer, AI mode
+  └─▶ Gemini generates 3 randomised alerts (JSON array)
+        └─▶ Each alert has: type, severity, fields, correct answer, AI mode (slowly trickle in)
 
 Select alert
   └─▶ Second Gemini call analyses the alert in the assigned mode
@@ -74,27 +74,6 @@ Alert types included:
 - **Malware / Endpoint** — PowerShell LOLBins, ransomware, C2 beacons
 - **Network Anomaly** — DNS tunneling, unusual data transfers, port scans
 - **Suspicious Login / IAM** — impossible travel, service account abuse, after-hours access
-
----
-
-## Self-Hosting
-
-The app is a single HTML file. To run your own copy:
-
-1. Clone the repo:
-   ```bash
-   git clone https://github.com/edumond21/Triage-Simulation-with-AI-Augmentation.git
-   ```
-
-2. Get a **free** Gemini API key (no credit card required):  
-   → [aistudio.google.com](https://aistudio.google.com) → **Get API key** → **Create API key**
-
-3. Open `index.html` in a text editor and replace the key value:
-   ```javascript
-   const GEMINI_KEY = 'YOUR_KEY_HERE';
-   ```
-
-4. Open the file in any browser — no server needed.
 
 ---
 
