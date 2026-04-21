@@ -1,40 +1,10 @@
-const MODEL = 'llama-3.3-70b-versatile';
-const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const MODEL = '@cf/meta/llama-3.1-8b-instruct';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
-
-async function callGroqWithRetry(key, body, maxRetries = 3) {
-  let lastResponse;
-  let delay = 2000;
-
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    if (attempt > 0) await new Promise(r => setTimeout(r, delay));
-
-    const response = await fetch(GROQ_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${key}`,
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (response.status === 429) {
-      const retryAfter = response.headers.get('retry-after');
-      delay = retryAfter ? parseFloat(retryAfter) * 1000 : delay * 2;
-      lastResponse = response;
-      continue;
-    }
-
-    return response;
-  }
-
-  return lastResponse;
-}
 
 export default {
   async fetch(request, env) {
@@ -57,28 +27,38 @@ export default {
       });
     }
 
-    const groqBody = {
-      model: MODEL,
-      messages: [
-        { role: 'system', content: systemText },
-        { role: 'user', content: userText },
-      ],
-      max_tokens: 8192,
-    };
+    if (!env.AI) {
+      return new Response(JSON.stringify({ error: 'AI binding not configured — add an AI binding named "AI" in the Cloudflare dashboard' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+      });
+    }
 
-    const response = await callGroqWithRetry(env.GROQ_KEY, groqBody);
-    const data = await response.json();
+    try {
+      const result = await env.AI.run(MODEL, {
+        messages: [
+          { role: 'system', content: systemText },
+          { role: 'user', content: userText },
+        ],
+        max_tokens: 4096,
+      });
 
-    // Normalize to Gemini-style response so the frontend needs no changes
-    const raw = data.choices?.[0]?.message?.content;
-    const text = raw ? raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim() : null;
-    const normalized = text
-      ? { candidates: [{ content: { parts: [{ text }] } }] }
-      : data;
+      const raw = result?.response ?? '';
+      const text = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
 
-    return new Response(JSON.stringify(normalized), {
-      status: response.status,
-      headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
-    });
+      const normalized = text
+        ? { candidates: [{ content: { parts: [{ text }] } }] }
+        : { error: 'Empty response from AI' };
+
+      return new Response(JSON.stringify(normalized), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+      });
+    } catch (e) {
+      return new Response(JSON.stringify({ error: `AI failed: ${e.message}` }), {
+        status: 502,
+        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+      });
+    }
   },
 };
